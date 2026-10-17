@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Painel · {{ site_name }}{% endblock %}
+{% block content %}
+<main class="adminwrap">
+  <section>
+    <h1>{{ 'Editar música' if song else 'Nova música' }}</h1>
+    <form method="post" action="{{ url_for('salvar') }}" enctype="multipart/form-data" class="form" id="songform">
+      <input type="hidden" name="csrf" value="{{ csrf() }}">
+      <input type="hidden" name="id" value="{{ song.id if song }}">
+      <input type="hidden" name="duration" id="duration" value="">
+      <label>Título
+        <input name="title" required maxlength="200" value="{{ song.title if song }}">
+      </label>
+      <label>Artista ou estilo
+        <input name="artist" maxlength="120" value="{{ song.artist if song }}">
+      </label>
+      <label>Descrição
+        <textarea name="description" rows="3">{{ song.description if song }}</textarea>
+      </label>
+      <label>Capa (JPG, PNG ou WEBP, 16:9)
+        <input type="file" name="thumb" id="thumb" accept="image/jpeg,image/png,image/webp">
+      </label>
+      <img id="thumbprev" class="prev" alt="" {% if song and song.thumb %}src="{{ url_for('media', kind='thumb', name=song.thumb) }}"{% else %}hidden{% endif %}>
+      <label>Arquivo MP3 {{ '(deixe vazio para manter o atual)' if song }}
+        <input type="file" name="audio" id="audiofile" accept=".mp3,audio/mpeg" {{ '' if song else 'required' }}>
+      </label>
+      <div class="row">
+        <button class="btn">{{ 'Salvar alterações' if song else 'Publicar música' }}</button>
+        {% if song %}<a class="btn ghost" href="{{ url_for('admin') }}">Cancelar</a>{% endif %}
+      </div>
+    </form>
+  </section>
+
+  <section>
+    <h1>Músicas publicadas <small>{{ songs|length }}</small></h1>
+    <ul class="list">
+    {% for s in songs %}
+      <li>
+        <div class="mini">{% if s.thumb %}<img src="{{ url_for('media', kind='thumb', name=s.thumb) }}" alt="">{% else %}<span>♪</span>{% endif %}</div>
+        <div class="grow"><strong>{{ s.title }}</strong><br><span class="meta">{{ s.downloads }} downloads · {{ s.plays }} plays</span></div>
+        <a class="btn sm ghost" href="{{ url_for('admin', sid=s.id) }}">Editar</a>
+        <form method="post" action="{{ url_for('excluir', sid=s.id) }}" onsubmit="return confirm('Excluir esta música? Os arquivos serão apagados.')">
+          <input type="hidden" name="csrf" value="{{ csrf() }}">
+          <button class="btn sm danger">Excluir</button>
+        </form>
+      </li>
+    {% else %}
+      <li class="empty">Nenhuma música ainda. Publique a primeira ao lado.</li>
+    {% endfor %}
+    </ul>
+  </section>
+</main>
+{% endblock %}

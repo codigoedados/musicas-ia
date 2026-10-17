@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Entrar · {{ site_name }}{% endblock %}
+{% block content %}
+<main class="narrow">
+  <h1>Área administrativa</h1>
+  <form method="post" class="form">
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    <label>Senha
+      <input type="password" name="password" autofocus required>
+    </label>
+    <button class="btn">Entrar</button>
+  </form>
+</main>
+{% endblock %}

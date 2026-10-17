@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    container_name: mundo-musicas
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      SITE_NAME: "Mundo Novo da IA"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?defina ADMIN_PASSWORD no .env}"
+      SECRET_KEY: "${SECRET_KEY:?defina SECRET_KEY no .env}"
+      MAX_UPLOAD_MB: "200"
+    volumes:
+      - dados:/data   # SQLite + mp3 + thumbs
+
+volumes:
+  dados:

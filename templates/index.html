@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block topright %}
+<form class="search" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Buscar música ou artista" aria-label="Buscar">
+  <input type="hidden" name="sort" value="{{ sort }}">
+  <button aria-label="Buscar">⌕</button>
+</form>
+{% endblock %}
+{% block content %}
+<section class="banner">
+  <div>
+    <h1>{{ site_name }}</h1>
+    <p>{{ songs|length }} música{{ '' if songs|length == 1 else 's' }} para ouvir e baixar em MP3</p>
+  </div>
+</section>
+
+<div class="chips" role="tablist">
+  {% for k, label in (('recent','Recentes'),('popular','Populares'),('old','Mais antigas')) %}
+  <a class="chip {{ 'on' if sort == k }}" href="?sort={{ k }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<main class="grid">
+{% for s in songs %}
+  <article class="card">
+    <button class="cover play" data-id="{{ s.id }}" data-title="{{ s.title }}" data-src="{{ url_for('media', kind='audio', name=s.audio) }}" aria-label="Ouvir {{ s.title }}">
+      {% if s.thumb %}<img loading="lazy" src="{{ url_for('media', kind='thumb', name=s.thumb) }}" alt="">{% else %}<span class="ph">♪</span>{% endif %}
+      {% if s.duration %}<span class="dur">{{ s.duration|dur }}</span>{% endif %}
+      <span class="ico">▶</span>
+    </button>
+    <div class="info">
+      <h2>{{ s.title }}</h2>
+      <p class="meta">{% if s.artist %}{{ s.artist }} · {% endif %}{{ s.downloads }} download{{ '' if s.downloads == 1 else 's' }} · {{ s.created_at|ago }}</p>
+    </div>
+    <a class="dl" href="{{ url_for('download', sid=s.id) }}" download title="Baixar MP3" aria-label="Baixar {{ s.title }}">⬇ <span>Baixar</span></a>
+  </article>
+{% else %}
+  <p class="empty">{% if q %}Nenhuma música encontrada para “{{ q }}”.{% else %}Ainda não há músicas publicadas.{% endif %}</p>
+{% endfor %}
+</main>
+
+<div id="player" class="player" hidden>
+  <div class="pt"><strong id="ptitle"></strong></div>
+  <audio id="audio" controls preload="none"></audio>
+  <button id="pclose" aria-label="Fechar player">✕</button>
+</div>
+{% endblock %}
